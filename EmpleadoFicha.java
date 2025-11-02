@@ -1,4 +1,4 @@
-package com.mycompany.tpfinalconcurrente;
+
 
 public class EmpleadoFicha implements Runnable{
 

@@ -1,5 +1,4 @@
 
-package com.mycompany.tpfinalconcurrente;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -22,15 +21,12 @@ public class ParqueDiversiones {
     private Semaphore cantidadMolinetes = new Semaphore(0), sillasMontaña = new Semaphore(0);
     private Semaphore iniciarMontana = new Semaphore(0), bajarMontaña = new Semaphore(0); // Obtiene un permiso cuándo
                                                                                           // se llena
-    private Semaphore mutex = new Semaphore(1); // Para verificar si está lleno o no
 
-    private Semaphore cerrarComercio = new Semaphore(0);
 
-    private Semaphore abrirComercio = new Semaphore(0); // Tiene un permiso para abrir el comercio
     private int cantidadGente = 0, ocupantesMontaña = 0;
-    private Semaphore molineteDisponible = new Semaphore(0);
 
     public void actualizarHora(LocalTime horaA) {
+        //Utilizo un semaforo para abrir y cerrar el comercio según la hora.
 
         this.hora = horaA;
 
@@ -42,9 +38,28 @@ public class ParqueDiversiones {
 
         }
 
-        if (horaAux == 19) {
+        if (horaAux == 18) {
 
             cerrarComercio.release();
+
+        }
+
+        if(horaAux == 19 ){ //Deberían cerrar todas las atracciones.
+
+            try {
+                  esperaMontaña.acquire(5); 
+
+
+
+
+
+                
+            } catch (InterruptedException e) {
+            }
+
+          
+
+
 
         }
         // Si hora == 9, abren los comercios.
@@ -52,6 +67,7 @@ public class ParqueDiversiones {
         // Si hora == 19, no puede entrar mas gente a las actividades.
         // Si hora == 23, no debería haber nadie.
     }
+    private Semaphore abrirComercio = new Semaphore(0); // Tiene un permiso para abrir el comercio
 
     public void abrirComercio() { // Un empleado abrirá y cerrará los distintos comercios.
         try {
@@ -59,13 +75,14 @@ public class ParqueDiversiones {
 
             abrirComercio.acquire();
             System.out.println("El parque de diversiones abre :) pueden ingresar visitantes.");
-            cantidadMolinetes.release(1); // Pongo uno de prueba aunq crep que funciona
+            cantidadMolinetes.release(1); // Depende la cantidad de molinetes que haya es la cantidad q va en el release.
 
         } catch (InterruptedException ex) {
             Logger.getLogger(ParqueDiversiones.class.getName()).log(Level.SEVERE, null, ex);
         }
 
     }
+    private Semaphore cerrarComercio = new Semaphore(0);
 
     public void cerrarComercio() {
 
@@ -76,13 +93,16 @@ public class ParqueDiversiones {
 
             cantidadMolinetes.acquire();
 
-        } catch (Exception e) {
+        } catch (InterruptedException e) {
             // TODO: handle exception
         }
 
     }
+    private Semaphore molineteDisponible = new Semaphore(0);
 
     public void ingresarParque() {
+        //EL ingreso al parque se controla con un semáforo (que serían molinetes)
+        //La cantidad de molinetes varía
 
         try {
             cantidadMolinetes.acquire();
@@ -95,36 +115,76 @@ public class ParqueDiversiones {
         }
 
     }
+    //MONTAÑA RUSA. La atracción de montaña rusa tiene capacidad para 5 personas.
+    //Debe estar llena para iniciar.
+    //Existe un espacio de espera: Sí este se llena el visitante se va a otro lado.
+    //La cantidad de el espacio de espera puede variar.
+
+
+
+    private Semaphore esperaMontaña = new Semaphore(5);
+
+    public void esperarMontañaRusa(){
+        //Utilizo un semáforo para realizar la espera de la montaña rusa.
+        //Si pasan mas de 5 segundos y no pudo ingresar, se va a otro lado.
+
+        try {
+            if(esperaMontaña.tryAcquire(1000, TimeUnit.MILLISECONDS)){
+                System.out.println("El visitante " + Thread.currentThread().getName() + " ingresó a la sala de espera de la montaña rusa.");
+
+                subirMontañaRusa();
+                
+
+
+        }else{
+
+            if(horaAux < 19){
+                            System.out.println("El visitante " + Thread.currentThread().getName() + " se va a otra atracción, la sala de espera está llena.");
+
+ 
+            }else{
+
+                System.out.println("El visitante se va de la montaña rusa, los comercios");
+
+
+
+            }
+
+        }
+
+
+
+
+
+            
+        } catch (InterruptedException e) {
+        }
+
+
+    }
+
+    private Semaphore mutex = new Semaphore(5);
+
 
     public void subirMontañaRusa() {
 
         try {
-            mutex.acquire();
-
-            if (ocupantesMontaña <= 4) {
-
-                System.out.println(
-                        "El visitante " + Thread.currentThread().getName() + " Se sentó en la montaña Rusa :)");
-                sillasMontaña.release();
-
+            mutex.acquire(); //Una vez que sube
+            esperaMontaña.release(); //Libera el lugar de la sala de espera.
+                System.out.println( "El visitante " + Thread.currentThread().getName() + " Se sentó en la montaña Rusa :)");
                 ocupantesMontaña++;
+                cantidadGente++; //Esto es para tener un contador de toda la gente en el parque.
+
+
                 System.out.println("Ocupantes: " + ocupantesMontaña + " /5");
 
-                mutex.release();
+                sillasMontaña.release();
 
-                Thread.sleep(500);
 
-                bajarMontaña.acquire();
-                System.out.println("El visitante " + Thread.currentThread().getName() + " se baja de la montaña.");
 
-            } else {
-                // Tener en cuenta la hora. Si son dps de las 19, se tiene que ir
+            bajarMontañaRusa(); //Preguntar si está bien poner estos metodos dentro de otros metodos.
 
-                System.out.println("El visitante " + Thread.currentThread().getName()
-                        + " se va a otra atracción ya que la montaña esta llena.");
-                mutex.release();
-            }
-
+        
         } catch (InterruptedException ex) {
             Logger.getLogger(ParqueDiversiones.class.getName()).log(Level.SEVERE, null, ex);
 
@@ -132,18 +192,40 @@ public class ParqueDiversiones {
 
     }
 
-    public void iniciarMontañaRusa() {
+    public void bajarMontañaRusa(){
+
+        try {
+
+                bajarMontaña.acquire();
+                System.out.println("El visitante " + Thread.currentThread().getName() + " se baja de la montaña.");
+
+
+
+                mutex.release(); //UNa vez que baja, puede subir otra persona de la sala de espera.
+
+
+
+
+        } catch (Exception e) {
+        }
+
+
+    }
+
+    public void iniciarMontañaRusa() { //Tengo que ver como hacer que el hilo de la montaña rusa muera una vez q cierra el comercio, auqnue no debería creo.
+
 
         try {
             sillasMontaña.acquire(5);
 
             System.out.println("La montaña rusa está llena.. arranca");
 
-            Thread.sleep(100);
+            Thread.sleep(500);
 
-            System.out.println("La montaña rusa terminó su reocrrido");
+            System.out.println("La montaña rusa terminó su recorrido");
 
             ocupantesMontaña = 0;
+            cantidadGente = cantidadGente - 5;
 
             bajarMontaña.release(5);
         } catch (InterruptedException ex) {
@@ -153,6 +235,12 @@ public class ParqueDiversiones {
 
     }
 
+
+
+//Los autos chocadores son en total 10 autos, y cada uno requiere dos personas.
+//Comienza solo cuándo todos los autos están ocupados.
+
+
     private Semaphore subirAuto = new Semaphore(20), encenderAuto = new Semaphore(0);
     private Semaphore bajarAuto = new Semaphore(0);
 
@@ -160,11 +248,22 @@ public class ParqueDiversiones {
 
         try {
 
-            subirAuto.acquire();
+
+//Debería ver la hora de cierre antes.
+
+
+            if (subirAuto.tryAcquire(5,TimeUnit.SECONDS)){ //Si no entra en 5 segundos. Esta bien usar este?
 
             System.out.println("El visitante " + Thread.currentThread().getName() + " Se subió a un auto chocador");
 
             encenderAuto.release(); // Deben liberar 20 permisos
+
+
+
+
+            }
+
+           
 
         } catch (Exception e) {
             // TODO: handle exception
@@ -214,6 +313,15 @@ public class ParqueDiversiones {
 
     }
 
+
+
+
+
+
+
+
+
+
     /*
      * c. El barco pirata tiene capacidad para 20 personas. El viaje comienza cuando
      * todas las plazas están llenas, o bien después de un determinado tiempo de
@@ -227,7 +335,8 @@ public class ParqueDiversiones {
     private int cantidadBarco = 0;
     private boolean bajar = false;
 
-    public void subirBarcoPirata() { // Como no dice que ingresan por orden de llegada, utilizo un lock
+    public void subirBarcoPirata() { // Como no dice que ingresan por orden de llegada, utilizo un lock. 
+        //Debería verificar la hora.
         barcoPirata.lock();
         try {
             while (cantidadBarco == 20) {

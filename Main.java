@@ -1,15 +1,4 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-package com.mycompany.tpfinalconcurrente;
 
-import com.mycompany.tpfinalconcurrente.*;
-
-/**
- *
- * @author PC
- */
 public class Main {
     public static void main(String[] args) {
 
@@ -45,11 +34,11 @@ public class Main {
         empleadoP.start();
 
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 20; i++) {
 
             try {
                 (new Thread(new Visitante(parque), "" + i)).start();
-                Thread.sleep(100);
+
 
             } catch (Exception e) {
                 // TODO: handle exception

@@ -1,4 +1,7 @@
-package com.mycompany.tpfinalconcurrente;
+
+
+
+
 
 public class AutoChocador implements Runnable {
 

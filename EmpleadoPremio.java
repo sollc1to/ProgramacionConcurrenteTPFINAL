@@ -1,5 +1,4 @@
 
-package com.mycompany.tpfinalconcurrente;
 
 public class EmpleadoPremio implements Runnable {
 

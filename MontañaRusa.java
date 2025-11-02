@@ -1,4 +1,3 @@
-package com.mycompany.tpfinalconcurrente;
 
 public class MontañaRusa implements Runnable{
 

@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package com.mycompany.tpfinalconcurrente;
+
 
 import java.util.concurrent.Exchanger;
 import java.util.logging.Level;
@@ -27,12 +27,11 @@ public class Visitante implements Runnable {
         try {
 
          
-            parque.ingresarParque();    
+            parque.ingresarParque();  
+            parque.esperarMontañaRusa();  
             
-
-            /*
-            parque.subirMontañaRusa();
-
+            /* 
+            
             Thread.sleep(500);
 
             parque.subirAutoChocador();
@@ -45,7 +44,7 @@ public class Visitante implements Runnable {
             parque.bajarBarcoPirata();
 
 
-            Thread.sleep(500);*/
+            Thread.sleep(500);
 
 
             parque.cambiarFichaV();
@@ -64,7 +63,7 @@ public class Visitante implements Runnable {
 
 
 
-        parque.ingresarComedor();
+        parque.ingresarComedor(); */
 
             
 
