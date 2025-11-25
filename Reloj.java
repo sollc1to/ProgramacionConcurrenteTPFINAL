@@ -16,8 +16,8 @@ import java.util.logging.Logger;
 public class Reloj implements Runnable {
 
     //Este hilo se encargará de ir actualizando la hora actual del día.
-    private LocalTime hora = LocalTime.of(00, 00, 00); //Empieza a las 00.
-    private int horaAux = 0;
+    private  LocalTime hora = LocalTime.of(00, 00, 00); //Empieza a las 00.
+    private int horaAux = 8;
     private ParqueDiversiones parque;
 
     public Reloj(ParqueDiversiones parque) {
@@ -35,7 +35,7 @@ public class Reloj implements Runnable {
 
                 parque.actualizarHora(hora);
 
-                Thread.sleep((int) (Math.random() * 2500 + 1000));
+                Thread.sleep((int) (Math.random() * 25000 + 1000));
 
                 horaAux++;
 
@@ -52,5 +52,7 @@ public class Reloj implements Runnable {
         }
 
     }
+
+
 
 }

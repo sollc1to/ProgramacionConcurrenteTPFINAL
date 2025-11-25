@@ -4,9 +4,8 @@
  */
 
 
-import java.util.concurrent.Exchanger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+
 
 /**
  *
@@ -14,7 +13,6 @@ import java.util.logging.Logger;
  */
 public class Empleado implements Runnable{
     ParqueDiversiones parque;
-    Exchanger <String> cambiarPremio;
     
     public Empleado(ParqueDiversiones parque){
         this.parque  = parque;

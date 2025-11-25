@@ -4,9 +4,16 @@ public class Main {
 
         ParqueDiversiones parque = new ParqueDiversiones();
 
-        Thread barcoP = new Thread(new BarcoPirata(parque));
+    
+     /*     Thread barcoP = new Thread(new BarcoPirata(parque));
+        
+         barcoP.start();
 
-        barcoP.start();
+         
+*/
+                  
+         Thread reloj = new Thread(new Reloj(parque));
+         reloj.start();
 
         Thread montana = new Thread(new MontañaRusa(parque));
 
@@ -14,36 +21,35 @@ public class Main {
 
         Thread empleado = new Thread(new Empleado(parque));
         empleado.start();
-        Thread reloj = new Thread(new Reloj(parque));
-        reloj.start();
-
-        Thread auto = new Thread(new AutoChocador(parque));
-        auto.start();
+    /* 
+        Thread empleadoPremio = new Thread(new EmpleadoPremio(parque));
+        empleadoPremio.start();
 
 
+        */
 
-
-
-
-        Thread empleadoF = new Thread(new EmpleadoFicha(parque));
-        Thread empleadoP = new Thread(new EmpleadoPremio(parque));
+        Thread empleadoTren = new Thread(new Empleadotren(parque));
+        empleadoTren.start();
 
 
 
-        empleadoF.start();
-        empleadoP.start();
 
+String[] nombres = {
+    "Lucas", "María", "Sofía", "Juan", "Lautaro"
+};
 
-        for (int i = 0; i < 20; i++) {
-
+        for (int i = 0; i < nombres.length; i++) {
             try {
-                (new Thread(new Visitante(parque), "" + i)).start();
+                Thread visitante = new Thread(new Visitante(parque), nombres[i]);
+                visitante.start();
+
+                visitante.sleep(400);
 
 
+            
             } catch (Exception e) {
-                // TODO: handle exception
-            }
-
+                e.printStackTrace();
+            } 
         }
 
     }

@@ -12,7 +12,14 @@ public class EmpleadoPremio implements Runnable {
 
         while (true) {
 
-            parque.cambiarPremioE();
+
+            try {
+                
+            parque.cambiarFichaE();
+            Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+           
         }
 
     }

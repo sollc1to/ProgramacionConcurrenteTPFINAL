@@ -5,6 +5,7 @@
 
 
 import java.util.concurrent.Exchanger;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,13 +24,68 @@ public class Visitante implements Runnable {
     }
 
     public void run() {
+        int i = 0;
 
         try {
 
+
+
+
+
+            while(!parque.getEstado()){
+
+                if (i==0){ //Esto es para que solo lo miprima una vez.
+                    System.out.println(Thread.currentThread().getName() + " no puede ingresar porque el parque está cerrado.");
+                    i =1;
+
+                }
+
+                 Thread.sleep(3400);
+
+            }
+
+            parque.ingresarParque();
+
+
+            while (true) { 
+
+                   parque.subirTren();
+                
+            }
+
          
-            parque.ingresarParque();  
-            parque.esperarMontañaRusa();  
+
+            /* 
+            parque.subirBarcoPirata();
+
+            Thread.sleep(1000);
             
+
+            parque.bajarBarcoPirata();
+
+
+                Thread.sleep(1000);
+
+      */
+
+/* 
+                 Thread.sleep(3400);
+
+            
+            parque.esperarMontañaRusa();  
+
+       
+                 Thread.sleep(3400);
+
+            parque.subirAutoChocador();
+
+        
+            */
+
+           
+
+            
+         
             /* 
             
             Thread.sleep(500);

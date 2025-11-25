@@ -22,13 +22,13 @@ public class MontañaRusa implements Runnable{
 
                     Thread.sleep(500);
                     
-                } catch (Exception e) {
+                } catch (InterruptedException e) {
                     // TODO: handle exception
                 }
     
             }
             
-        }
+        
 
 
 
@@ -40,4 +40,5 @@ public class MontañaRusa implements Runnable{
 
 
 
+}
 }

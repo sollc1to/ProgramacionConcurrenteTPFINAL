@@ -25,7 +25,10 @@ public class AutoChocador implements Runnable {
 
 
                 parque.encenderAutoC();
+                Thread.sleep(1000);
+
                 parque.detenerAutoC();
+            
 
 
 
