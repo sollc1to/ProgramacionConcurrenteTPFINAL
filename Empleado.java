@@ -24,7 +24,8 @@ public class Empleado implements Runnable{
         while(true){
             
         parque.abrirComercio();
-        parque.cerrarComercio();
+        parque.cerrarIngreso();
+        parque.cerrarParque();
 
         }
 

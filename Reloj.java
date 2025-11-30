@@ -35,7 +35,7 @@ public class Reloj implements Runnable {
 
                 parque.actualizarHora(hora);
 
-                Thread.sleep((int) (Math.random() * 25000 + 1000));
+                Thread.sleep((int) (Math.random() * 2500 + 1000));
 
                 horaAux++;
 

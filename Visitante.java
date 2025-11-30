@@ -28,98 +28,34 @@ public class Visitante implements Runnable {
 
         try {
 
-
-
-
-
             while(!parque.getEstado()){
 
                 if (i==0){ //Esto es para que solo lo miprima una vez.
                     System.out.println(Thread.currentThread().getName() + " no puede ingresar porque el parque está cerrado.");
                     i =1;
-
                 }
 
                  Thread.sleep(3400);
 
             }
 
-            parque.ingresarParque();
+             parque.ingresarParque(); //Ingresa al parque
 
 
-            while (true) { 
-
-                   parque.subirTren();
+            while (parque.getEstado()) { //Mientras esté abierto. Si no elige ir al shopping.
+            
+             parque.esperarMontañaRusa();
+             Thread.sleep(1000);
+            
+                
+            
                 
             }
 
+            System.out.println(Thread.currentThread().getName() + " fue del parque de diversiones porque esta cerrando");
+     
+
          
-
-            /* 
-            parque.subirBarcoPirata();
-
-            Thread.sleep(1000);
-            
-
-            parque.bajarBarcoPirata();
-
-
-                Thread.sleep(1000);
-
-      */
-
-/* 
-                 Thread.sleep(3400);
-
-            
-            parque.esperarMontañaRusa();  
-
-       
-                 Thread.sleep(3400);
-
-            parque.subirAutoChocador();
-
-        
-            */
-
-           
-
-            
-         
-            /* 
-            
-            Thread.sleep(500);
-
-            parque.subirAutoChocador();
-
-            parque.bajarAutoChocador();
-
-            Thread.sleep(500);
-
-            parque.subirBarcoPirata();
-            parque.bajarBarcoPirata();
-
-
-            Thread.sleep(500);
-
-
-            parque.cambiarFichaV();
-
-            System.out.println("El hilo " + Thread.currentThread().getName() + " esta jugando");
-            Thread.sleep(500);
-
-            parque.cambiarFichaJugar();
-
-            System.out.println("El hilo " + Thread.currentThread().getName() + " se va del parque");
-
-
-            Thread.sleep(500);
-
-
-
-
-
-        parque.ingresarComedor(); */
 
             
 

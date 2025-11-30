@@ -22,21 +22,27 @@ public class ParqueDiversiones {
     // AGREGAR LOS PARÁMETROS QUE VARÍAN SEGUN LA ATRACCION
     // AGREGAR COLORES PARA QUE SEA MÁS LEGIBLE
 
-    private int horaAux; // Hago esta variable volatile para que sea visible para el empleado en el
-                         // momento
-    // que es modificada.
+    private int horaAux;
     private int cantidadMoli;
-    private Semaphore cantidadMolinetes = new Semaphore(0), sillasMontaña = new Semaphore(0);
-    private Semaphore iniciarMontana = new Semaphore(0), bajarMontaña = new Semaphore(0); // Obtiene un permiso cuándo
-                                                                                          // se llena
+    private Semaphore cantidadMolinetes = new Semaphore(0);
 
     private AtomicBoolean estado = new AtomicBoolean(false); // Creo un atomicboolean para manejar la apertura y cierre.
+    public AtomicBoolean cierre = new AtomicBoolean(false);
 
     // Utilizo este como una bandera. Está el estado abierto, cerrado, cerrando.
 
-    private int cantidadGente = 0, ocupantesMontaña = 0;
+    private int ocupantesMontaña = 0;
 
-    private Semaphore horaSemaphore = new Semaphore(1);
+    public ParqueDiversiones(int molinetes, int cantidadMesas) {
+
+        this.cM = cantidadMesas;
+        this.cantidadMoli = molinetes;
+
+    }
+
+    public boolean getCierre(){
+        return cierre.get();
+    }
 
     public void actualizarHora(LocalTime horaA) {
         // Utilizo un semaforo para abrir y cerrar el comercio según la hora.
@@ -57,10 +63,14 @@ public class ParqueDiversiones {
 
             }
 
-            System.out.println("El parque de diversiones abre :) pueden ingresar visitantes.");
+            System.out.println(ANSI_Colors.GREEN + "El parque de diversiones abre :) pueden ingresar visitantes."
+                    + ANSI_Colors.RESET);
+
+            cierre.compareAndExchange(false, true);
             estado.compareAndExchange(false, true);
-            cantidadMolinetes.release(1); // Depende la cantidad de molinetes que haya es la cantidad q va en el
-                                          // release.
+            cantidadMolinetes.release(cantidadMoli);
+            // Depende la cantidad de molinetes que haya es la cantidad q va en el
+            // release.
 
         } catch (InterruptedException ex) {
             Logger.getLogger(ParqueDiversiones.class.getName()).log(Level.SEVERE, null, ex);
@@ -68,7 +78,7 @@ public class ParqueDiversiones {
 
     }
 
-    public void cerrarComercio() {
+    public void cerrarIngreso() {
 
         try {
 
@@ -76,18 +86,36 @@ public class ParqueDiversiones {
                 Thread.sleep(1500);
             }
 
-            System.out.println("El comercio cierra sus puertas a los clientes.");
+            System.out.println(ANSI_Colors.RED + "El comercio cierra sus puertas a los clientes." + ANSI_Colors.RESET);
             estado.compareAndExchange(true, false);
 
-            cantidadMolinetes.acquire();
+            cantidadMolinetes.acquire(cantidadMoli); // Ya no puede ingresar más gente.
 
         } catch (InterruptedException e) {
-            // TODO: handle exception
+            Logger.getLogger(ParqueDiversiones.class.getName()).log(Level.SEVERE, null, e);
+
         }
 
     }
 
-    private Semaphore molineteDisponible = new Semaphore(0);
+    public void cerrarParque() {
+
+        try {
+
+            while (horaAux < 21) {
+                Thread.sleep(1500);
+            }
+
+            System.out.println(ANSI_Colors.RED + "El comercio cierra sus puertas a los clientes y empleados." + ANSI_Colors.RESET);
+            cierre.compareAndExchange(true, false);
+
+
+        } catch (InterruptedException e) {
+            Logger.getLogger(ParqueDiversiones.class.getName()).log(Level.SEVERE, null, e);
+
+        }
+
+    }
 
     public void ingresarParque() {
         // EL ingreso al parque se controla con un semáforo (que serían molinetes)
@@ -96,7 +124,7 @@ public class ParqueDiversiones {
 
         try {
 
-            if (estado.get()) { // Si no está abierto, entonces el visitante no queda trbado en el tryacquire
+            if (estado.get()) { // A partir de las 6 no se puede entrar más
 
                 cantidadMolinetes.acquire(1);
 
@@ -110,7 +138,8 @@ public class ParqueDiversiones {
             Logger.getLogger(ParqueDiversiones.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        //return estado.get()  esto estará mal???. POdría hacer que vea el estado y después ingresa.
+        // return estado.get() esto estará mal???. POdría hacer que vea el estado y
+        // después ingresa.
 
     }
     // MONTAÑA RUSA. La atracción de montaña rusa tiene capacidad para 5 personas.
@@ -119,57 +148,62 @@ public class ParqueDiversiones {
     // La cantidad de el espacio de espera puede variar.
 
     private Semaphore esperaMontaña = new Semaphore(5);
-
-    public void esperarMontañaRusa() {
-        // Utilizo un semáforo para realizar la espera de la montaña rusa.
-
-        try {
-            if (estado.get() && esperaMontaña.tryAcquire(1000, TimeUnit.MILLISECONDS)) { // Lo realizo así el hilo no
-                                                                                         // queda atascado
-
-                System.out.println("El visitante " + Thread.currentThread().getName()
-                        + " ingresó a la sala de espera de la montaña rusa.");
-
-                subirMontañaRusa(); // Este está bien?
-
-            } else {
-
-                if (!estado.get()) { // Si no pudo entrar porque ya cerró..
-
-                    System.out.println("El visitante " + Thread.currentThread().getName()
-                            + " se va a otra atracción, la sala de espera está llena.");
-
-                } else { // SI no, se quedó sin espacio en la sala de espera.
-
-                    System.out.println("El visitante " + Thread.currentThread().getName()
-                            + " se cansó de esperar la montaña rusa.");
-
-                }
-            }
-
-        } catch (InterruptedException e) {
-        }
-
-    }
+    private Semaphore bajarMontaña = new Semaphore(0);
+    private Semaphore sillasMontaña = new Semaphore(0);
 
     private Semaphore mutex = new Semaphore(5);
     private Semaphore ocupantes = new Semaphore(1);
 
+    public void esperarMontañaRusa() {
+        // Utilizo un semáforo para realizar el espacio de espera de la montaña rusa.
+
+        try {
+            if (estado.get() && esperaMontaña.tryAcquire(1000, TimeUnit.MILLISECONDS)) {
+                // Lo realizo así el hilo no
+                // queda atascado
+
+                System.out.println("El visitante " + Thread.currentThread().getName()
+                        + " ingresó a la sala de espera de la " +ANSI_Colors.CYAN +"  montaña rusa." + ANSI_Colors.RESET);
+
+                subirMontañaRusa(); // Solo si ingresa puede subirse a la montaña rusa.
+
+            } else {
+
+                    System.out.println("El visitante " + Thread.currentThread().getName() + " se va de la atraccion" +  ANSI_Colors.CYAN + "  montaña rusa "+ ANSI_Colors.RESET);
+
+                
+            }
+
+        } catch (InterruptedException e) {
+            System.out.println(Thread.currentThread().getName() + " fue interrumpido.");
+        }
+
+    }
+
     public void subirMontañaRusa() {
 
         try {
+
+            if(estado.get()){
+
             mutex.acquire(); // Una vez que sube
             esperaMontaña.release(); // Libera el lugar de la sala de espera.
-            System.out.println("El visitante " + Thread.currentThread().getName() + " Se sentó en la montaña Rusa :)");
+            System.out.println("El visitante " + Thread.currentThread().getName() + " Se sentó en la " +ANSI_Colors.CYAN +"  montaña rusa." + ANSI_Colors.RESET);
 
             ocupantes.acquire();
             ocupantesMontaña++;
             System.out.println("Ocupantes: " + ocupantesMontaña + " /5");
             ocupantes.release();
 
-            sillasMontaña.release();
+            sillasMontaña.release(); // Le libero un permiso al empleado de la montaña rusa.
 
             bajarMontañaRusa(); // Preguntar si está bien poner estos metodos dentro de otros metodos.
+
+            }else{
+
+                System.out.println(Thread.currentThread().getName() + " se va de la "+ANSI_Colors.CYAN +"  montaña rusa " + ANSI_Colors.RESET + " porque el parque está cerrando..");
+            }
+         
 
         } catch (InterruptedException ex) {
             Logger.getLogger(ParqueDiversiones.class.getName()).log(Level.SEVERE, null, ex);
@@ -183,33 +217,43 @@ public class ParqueDiversiones {
         try {
 
             bajarMontaña.acquire();
-            System.out.println("El visitante " + Thread.currentThread().getName() + " se baja de la montaña.");
+            System.out.println("El visitante " + Thread.currentThread().getName() + " se baja de la "+ANSI_Colors.CYAN +"  montaña rusa." + ANSI_Colors.RESET);
+
+
+            if(estado.get()){ //SI todavía no son las 18 horas puede seguir entrando gente.
 
             mutex.release(); // Una vez que baja, puede subir otra persona de la sala de espera.
+
+
+            }
 
         } catch (Exception e) {
         }
 
     }
 
-    public void iniciarMontañaRusa() { // Tengo que ver como hacer que el hilo de la montaña rusa muera una vez q
-                                       // cierra el comercio, auqnue no debería creo.
+    public void iniciarMontañaRusa() {
 
         try {
 
             if (estado.get()) {
 
-                sillasMontaña.acquire(5); // Para que no quede colgada por si cierra el lugar.
+                if (sillasMontaña.tryAcquire(5,5, TimeUnit.SECONDS)) {// Para que no quede colgada por si cierra el lugar.
 
-                System.out.println("La montaña rusa está llena.. arranca");
+                    System.out.println("La " +ANSI_Colors.CYAN +"  montaña rusa " + ANSI_Colors.RESET+ " está llena.. arranca");
 
-                Thread.sleep(500);
+                    Thread.sleep(500);
 
-                System.out.println("La montaña rusa terminó su recorrido");
+                    System.out.println("La "  +ANSI_Colors.CYAN +"  montaña rusa " + ANSI_Colors.RESET + " terminó su recorrido");
 
-                ocupantesMontaña = 0;
-                bajarMontaña.release(5);
+                    ocupantesMontaña = 0;
+                    bajarMontaña.release(5);
+                } else {
+                    System.out.println("No llegaron pasajeros suficientes y la "  +ANSI_Colors.CYAN + "  montaña rusa " + ANSI_Colors.RESET + " no puede iniciar.");
+                }
+
             }
+
         } catch (InterruptedException ex) {
             Logger.getLogger(ParqueDiversiones.class.getName()).log(Level.SEVERE, null, ex);
 
@@ -217,31 +261,45 @@ public class ParqueDiversiones {
 
     }
 
+
+
+
+
     // Los autos chocadores son en total 10 autos, y cada uno requiere dos personas.
     // Comienza solo cuándo todos los autos están ocupados.
 
     private Semaphore subirAuto = new Semaphore(20), encenderAuto = new Semaphore(0);
     private Semaphore bajarAuto = new Semaphore(0);
+    private Semaphore mut = new Semaphore(1);
+    private int cantidadP = 0;
 
     public void subirAutoChocador() {
 
         try {
 
-            // Debería ver la hora de cierre antes.
+            mut.acquire();
+            cantidadP++;
+            mut.release();
 
-            if (estado.get() && subirAuto.tryAcquire(5, TimeUnit.SECONDS)) { // Si no entra en 5 segundos. Esta bien
-                                                                             // usar este?
+            subirAuto.acquire();
 
-                System.out.println("El visitante " + Thread.currentThread().getName() + " Se subió a un auto chocador");
+            if (estado.get()) {
+
+                System.out.println("El visitante " + Thread.currentThread().getName() + " Se subió a un " + ANSI_Colors.BLUE
+                        + " auto chocador" + ANSI_Colors.RESET );
 
                 encenderAuto.release(); // Deben liberar 20 permisos
 
                 bajarAutoChocador(); // Lo pogno acá ya que solo se sube al auto si entra a este método
 
+            } else {
+                System.out.println(Thread.currentThread().getName() + " Se va de los + " + ANSI_Colors.BLUE
+                        + " autos chocadores " + ANSI_Colors.RESET + " porque cerró el parque.");
             }
 
-        } catch (Exception e) {
-            // TODO: handle exception
+        } catch (InterruptedException e) {
+            Logger.getLogger(ParqueDiversiones.class.getName()).log(Level.SEVERE, null, e);
+
         }
 
     }
@@ -253,10 +311,13 @@ public class ParqueDiversiones {
             bajarAuto.tryAcquire(5, TimeUnit.SECONDS); // acquireINterrupted sirve?
 
             System.out.println("El visitante " + Thread.currentThread().getName()
-                    + " se baja de la atracción autos chocadores :)\n");
+                    + " se baja de la atracción" + ANSI_Colors.BLUE + " autos chocadores" + ANSI_Colors.RESET +":)");
+            mut.acquire();
+            cantidadP--;
+            mut.release();
             subirAuto.release(); // Por cada uno que se baja, se puede subir otro
 
-        } catch (Exception e) {
+        } catch (InterruptedException e) {
             // TODO: handle exception
         }
     }
@@ -267,10 +328,19 @@ public class ParqueDiversiones {
 
             if (estado.get() && encenderAuto.tryAcquire(20, 6, TimeUnit.SECONDS)) {
 
-                System.out.println("La atracción de autos chocadores inició..");
+                System.out.println("La atracción de "+ ANSI_Colors.BLUE + " auto chocadores" + ANSI_Colors.RESET +" inició..");
 
                 detenerAutoC();
 
+            } else {
+                if (!estado.get()) { // Sí está cerrado..
+                    if (cantidadP > 0) {
+
+                        subirAuto.release(cantidadP); //Los liberamos para que se vayan.
+
+                    }
+
+                }
             }
 
         } catch (InterruptedException e) {
@@ -283,7 +353,7 @@ public class ParqueDiversiones {
 
         try {
 
-            System.out.println("La atracción de autos chocadores se detiene.");
+            System.out.println("La atracción de " + ANSI_Colors.BLUE + " autos chocadores" + ANSI_Colors.RESET +" se detiene.");
             bajarAuto.release(20);
 
         } catch (Exception e) {
@@ -612,33 +682,29 @@ public class ParqueDiversiones {
 
             esperarTren.lock();
 
-    
+            while (!bandera.get()) { // Mientras no pueda ingresar.
 
-                while (!bandera.get()) { // Mientras no pueda ingresar.
+                System.out.println(Thread.currentThread().getName() + " está esperando el tren.. ");
+                salaEspera.await();
 
-                    System.out.println(Thread.currentThread().getName() + " está esperando el tren.. ");
-                    salaEspera.await();
+            }
 
-                }
+            if (estado.get()) {
 
-                if (estado.get()) {
+                tren.put(Thread.currentThread());
 
-                    tren.put(Thread.currentThread());
+                System.out.println(Thread.currentThread().getName() + " se subió al tren. ");
 
-                    System.out.println(Thread.currentThread().getName() + " se subió al tren. ");
+                bajarTren();
 
-                    bajarTren();
+            } else {// SI está cerrado..
 
-                } else {//SI está cerrado..
-
-                    System.out.println("El parque ya cerró y " + Thread.currentThread().getName() + " se va del parque.");
-                }
-
-            
+                System.out.println("El parque ya cerró y " + Thread.currentThread().getName() + " se va del parque.");
+            }
 
         } catch (InterruptedException e) {
             // TODO: handle exception
-        }finally{
+        } finally {
             esperarTren.unlock();
         }
 
@@ -649,24 +715,19 @@ public class ParqueDiversiones {
 
     public void bajarTren() {
 
-            try {
+        try {
 
-                 esperarTren.lock();
+            esperarTren.lock();
 
-                    esperar.await();
+            esperar.await();
 
-                
+            System.out.println(Thread.currentThread().getName() + " se bajó del tren.");
 
-                System.out.println(Thread.currentThread().getName() + " se bajó del tren.");
+        } catch (InterruptedException e) {
+        } finally {
+            esperarTren.unlock();
 
-
-            } catch (InterruptedException e) {
-            }finally{
-                esperarTren.unlock();
-                
-            }
-
-        
+        }
 
     }
 
@@ -678,37 +739,35 @@ public class ParqueDiversiones {
 
             esperarTren.lock();
 
+            if (estado.get()) { // Sí el parque está abierto...
+                System.out.println("El tren arrancará en unos minutos...");
+                bandera.compareAndExchange(false, true); // Permite la entrada a los visitantes.
 
-                if (estado.get()) { // Sí el parque está abierto...
-                    System.out.println("El tren arrancará en unos minutos...");
-                    bandera.compareAndExchange(false, true); // Permite la entrada a los visitantes.
+                salaEspera.signalAll(); // Despierta a todos si había alguien esperando.
 
-                    salaEspera.signalAll(); // Despierta a todos si había alguien esperando.
+                long inicio = System.currentTimeMillis();
+                long limite = inicio + 2000; // 2 segundos
 
-                    long inicio = System.currentTimeMillis();
-                    long limite = inicio + 2000; // 2 segundos
-
-                    // Esperar hasta que se llenen los 10 lugares o pase el tiempo
-                    while (tren.size() < 10 && System.currentTimeMillis() < limite) { //SI cierra cuándo esta esperando, este sería el ultimo viaje.
-                        arrancarTren.await(1, TimeUnit.SECONDS); //Duerme 1 segundo.
-                        
-                    }
-
-                    bandera.set(false); // Evitamos el paso de más gente.
-
-                    System.out.println("El tren arrancó.");
-
-                } else {
-                    System.out.println("El parque ya cerró y las personas en la sala de espera deben irse.");
-                    bandera.compareAndExchange(false, true);
-                    salaEspera.signalAll();
+                // Esperar hasta que se llenen los 10 lugares o pase el tiempo
+                while (tren.size() < 10 && System.currentTimeMillis() < limite) { // SI cierra cuándo esta esperando,
+                                                                                  // este sería el ultimo viaje.
+                    arrancarTren.await(1, TimeUnit.SECONDS); // Duerme 1 segundo.
 
                 }
 
-            
+                bandera.set(false); // Evitamos el paso de más gente.
+
+                System.out.println("El tren arrancó.");
+
+            } else {
+                System.out.println("El parque ya cerró y las personas en la sala de espera deben irse.");
+                bandera.compareAndExchange(false, true);
+                salaEspera.signalAll();
+
+            }
 
         } catch (InterruptedException e) {
-        }finally{
+        } finally {
             esperarTren.unlock();
         }
 
@@ -717,29 +776,18 @@ public class ParqueDiversiones {
     public void bajarPasajeros() {
         int aux = tren.size();
 
-
         try {
             esperarTren.lock();
 
-                System.out.println("El tren terminó su viaje y se bajan los pasajeros...");
+            System.out.println("El tren terminó su viaje y se bajan los pasajeros...");
 
+            esperar.signalAll();
 
+            bandera.set(true);
 
-                esperar.signalAll();
+            salaEspera.signalAll();
 
-            
-
-                bandera.set(true);
-
-
-
-
-                salaEspera.signalAll();
-
-            
-
-       
-        }finally{
+        } finally {
             esperarTren.unlock();
         }
 
@@ -748,6 +796,199 @@ public class ParqueDiversiones {
     public boolean getEstado() {
 
         return estado.get();
+    }
+
+    /*
+     * Realidad Virtual
+     * a.El parque ofrece una actividad de realidad virtual,donde los visitantes
+     * necesitan
+     * un equipo completo compuesto de un visor de realidad virtual (VR),dos
+     * manoplas, y una base. El encargado de la atracción debe proporcionar estos
+     * tres
+     * elementos a cada visitante antes de que pueda participar. La cantidad de cada
+     * elemento es limitada y puede variar, pero solo se puede permitir el ingreso
+     * si el visitante tiene un equipo completo. Deben asegurarse de que los
+     * visitantes
+     * reciban los equipos completos antes de ingresar a la actividad. Si falta
+     * algún componente, el visitante debe esperar hasta que esté disponible.
+     */
+
+    private int visores = 4, manoplas = 4, bases = 4;
+    private boolean manoplaLista = false, baseLista = false, esperaLista = false;
+    private int cantidadSala = 0, cantidadManopla = 0, cantidadBAse = 0;
+
+    private Lock juegoVRLock = new ReentrantLock();
+
+    private Condition salaEsperaVR = juegoVRLock.newCondition();
+    private Condition manopla = juegoVRLock.newCondition();
+    private Condition base = juegoVRLock.newCondition();
+    private Condition jugarVR = juegoVRLock.newCondition();
+
+    private boolean salir = false;
+
+    public void ingresarVR() {
+
+        juegoVRLock.lock();
+
+        try {
+
+            // Primero debe obtener el visor.
+
+            System.out.println(Thread.currentThread().getName() + " está esperando en la sala de VR.");
+            cantidadSala++;
+            salaEsperaVR.await();
+
+            if (getEstado()) { // SI el negocio está abierto
+                System.out.println(Thread.currentThread().getName() + " pudo avanzar y obtiene un visor.");
+                cantidadSala--;
+                esperarManoplas();
+            } else {
+                System.out.println(Thread.currentThread().getName() + " se va porque el parque está cerrado.");
+            }
+
+        } catch (InterruptedException e) {
+        } finally {
+            juegoVRLock.unlock();
+        }
+
+    }
+
+    public void esperarManoplas() {
+
+        juegoVRLock.lock();
+
+        try {
+
+            // Espera manoplas libres
+
+            System.out.println(Thread.currentThread().getName() + " está esperando dos manoplas.");
+            cantidadManopla++;
+            manopla.await();
+
+            if (getEstado()) { // SI el negocio está abierto
+                System.out.println(Thread.currentThread().getName() + " pudo avanzar y tiene un visor y dos manoplas.");
+                cantidadManopla--;
+                esperarBase();
+
+            } else {
+                System.out.println(Thread.currentThread().getName() + " se va porque el parque está cerrado.");
+            }
+
+        } catch (InterruptedException e) {
+        } finally {
+            juegoVRLock.unlock();
+        }
+
+    }
+
+    public void esperarBase() {
+
+        juegoVRLock.lock();
+
+        try {
+
+            // Espera base libre
+
+            System.out.println(Thread.currentThread().getName() + " está esperando una base.");
+            cantidadBAse++;
+            base.await();
+
+            if (getEstado()) { // SI el negocio está abierto
+                System.out.println(
+                        Thread.currentThread().getName() + " pudo avanzar y tiene un visor, dos manoplas y la base.");
+                cantidadBAse--;
+                jugarYDevolverEquipo();
+
+            } else {
+                System.out.println(Thread.currentThread().getName() + " se va porque el parque está cerrado.");
+            }
+
+        } catch (InterruptedException e) {
+        } finally {
+            juegoVRLock.unlock();
+        }
+
+    }
+
+    public void jugarYDevolverEquipo() {
+
+        juegoVRLock.lock();
+
+        try {
+
+            System.out.println(Thread.currentThread().getName() + " juega en VR...");
+            jugarVR.await(3, TimeUnit.SECONDS);
+
+            System.out.println(Thread.currentThread().getName() + " devuelve el equipo.");
+            manoplas = manoplas + 2;
+            bases = bases + 1;
+            visores = visores + 1;
+
+        } catch (InterruptedException e) {
+        } finally {
+            juegoVRLock.unlock();
+        }
+
+    }
+
+    public synchronized void darEquipo() {
+
+        juegoVRLock.lock();
+
+        try {
+
+            if (cantidadSala > 0) {
+                if (visores > 0) {
+                    visores--;
+
+                    System.out.println("El empleado entrega un visor. Cantidad visores " + visores);
+                    salaEsperaVR.signal();
+
+                }
+            }
+
+            if (cantidadManopla > 0) {
+                if (manoplas > 2) {
+                    manoplas = manoplas - 2;
+                    System.out.println("El empleado entrega dos manoplas. Cantidad manoplas: " + manoplas);
+
+                    manopla.signal();
+                }
+            }
+
+            if (cantidadBAse > 0) {
+
+                if (bases > 1) {
+                    bases--;
+                    System.out.println("EL empleado entrega una base. Cantidad bases: " + base);
+
+                    base.signal();
+
+                }
+
+            }
+
+        } finally {
+            juegoVRLock.unlock();
+        }
+
+    }
+
+    public void cerrarLocalVR() {
+        juegoVRLock.lock();
+
+        try {
+            System.out.println("El parque de diversiones ya cerró y el empleado cierra el local de VR.");
+
+            salaEsperaVR.signalAll();
+            manopla.signalAll();
+            base.signalAll();
+
+        } finally {
+
+            juegoVRLock.unlock();
+        }
+
     }
 
 }
