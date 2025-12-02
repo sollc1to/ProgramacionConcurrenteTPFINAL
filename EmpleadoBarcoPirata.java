@@ -23,7 +23,7 @@ public class EmpleadoBarcoPirata implements Runnable {
 
                     parque.iniciarBarcoPirata();
 
-                    Thread.sleep(1000);
+                    Thread.sleep(7000);
                     parque.terminarBarcoPirata();
 
                 }

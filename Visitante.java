@@ -4,29 +4,18 @@
  */
 
 import java.util.Random;
-import java.util.concurrent.Exchanger;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-/**
- *
- * @author PC
- */
 public class Visitante implements Runnable {
 
     private ParqueDiversiones parque;
-    private Exchanger<String> cambiarFicha;
+    private int actividad; // 1 a 6
 
-    public Visitante(ParqueDiversiones parque) {
+    public Visitante(ParqueDiversiones parque, int actividad) {
         this.parque = parque;
-
+        this.actividad = actividad;
     }
 
     public void run() {
-
-        Random r = new Random();
-
         try {
             int i = 0;
 
@@ -41,63 +30,18 @@ public class Visitante implements Runnable {
                     Thread.sleep(3000);
                 }
 
-                parque.ingresarParque(); // INgresa al parque de atracciones.
+                parque.ingresarParque(); // Ingresa al parque de atracciones.
                 System.out.println(Thread.currentThread().getName() + " ingresó al parque.");
 
                 while (parque.getEstado()) {
 
-                    int opcion = r.nextInt(8); // número entre 0 y 7
+                    if (actividad <= 6) { // En este caso solo ejecutamos la actividad individual.
 
-                    switch (opcion) {
-                        case 0:
-                            parque.subirAutoChocador();
-                            Thread.sleep(1000);
+                        ejecutarActividad();
 
-                            break;
-                        case 1:
-                            parque.subirBarcoPirata();
-                            Thread.sleep(1000);
-
-                            break;
-                        case 2:
-                            parque.cambiarFichaV();
-                            Thread.sleep(1000);
-
-                            break;
-                        case 3:
-                            parque.ingresarComedor();
-                            Thread.sleep(1000);
-
-                            break;
-                        case 4:
-                            parque.subirTren();
-                            Thread.sleep(1000);
-
-                            break;
-                        case 5:
-                            parque.ingresarVR();
-                            Thread.sleep(1000);
-
-                            break;
-
-                        case 6:
-
-                            System.out.println(Thread.currentThread().getName() + " decidió ir al shopping.");
-                            Thread.sleep(1000);
-                            break;
-
-                        case 7:
-                            parque.ingresarComedor();
-                            Thread.sleep(1000);
-
-                            break;
-
-                        default:
-                            Thread.sleep(1000);
-                            break;
-
+                    } else {
+                        ejecutarTodasActividades();
                     }
-
                     Thread.sleep(1500); // pausa entre atracciones
                 }
 
@@ -108,5 +52,90 @@ public class Visitante implements Runnable {
         } catch (InterruptedException e) {
         }
 
+    }
+
+    private void ejecutarTodasActividades() {
+
+        Random r = new Random();
+        int act = r.nextInt(8); // número entre 0 y 7
+
+        try {
+
+            switch (act) {
+                case 0:
+                    parque.subirAutoChocador();
+                    Thread.sleep(1000);
+
+                    break;
+                case 1:
+                    parque.subirBarcoPirata();
+                    Thread.sleep(1000);
+
+                    break;
+                case 2:
+                    parque.cambiarFichaV();
+                    Thread.sleep(1000);
+
+                    break;
+                case 3:
+                    parque.ingresarComedor();
+                    Thread.sleep(1000);
+
+                    break;
+                case 4:
+                    parque.subirTren();
+                    Thread.sleep(1000);
+
+                    break;
+                case 5:
+                    parque.ingresarVR();
+                    Thread.sleep(1000);
+
+                    break;
+
+                case 6:
+
+                    System.out.println(Thread.currentThread().getName() + " decidió ir al shopping.");
+                    Thread.sleep(1000);
+                    break;
+
+                case 7:
+                    parque.ingresarComedor();
+                    Thread.sleep(1000);
+
+                    break;
+
+                default:
+                    Thread.sleep(1000);
+                    break;
+
+            }
+
+        } catch (InterruptedException e) {
+        }
+
+    }
+
+    private void ejecutarActividad() { // Este es para ejecutar un actividad individualmente.
+        switch (this.actividad) {
+            case 1:
+                parque.subirBarcoPirata();
+                break;
+            case 2:
+                parque.subirMontañaRusa(); // ajustá al nombre real del método
+                break;
+            case 3:
+                parque.cambiarFichaV(); // si este es "premio"
+                break;
+            case 4:
+                parque.subirTren();
+                break;
+            case 5:
+                parque.ingresarVR();
+                break;
+            case 6:
+                parque.subirAutoChocador();
+                break;
+        }
     }
 }
