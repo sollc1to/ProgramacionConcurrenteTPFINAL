@@ -40,7 +40,7 @@ public class ParqueDiversiones {
 
     }
 
-    public boolean getCierre(){
+    public boolean getCierre() {
         return cierre.get();
     }
 
@@ -106,9 +106,9 @@ public class ParqueDiversiones {
                 Thread.sleep(1500);
             }
 
-            System.out.println(ANSI_Colors.RED + "El comercio cierra sus puertas a los clientes y empleados." + ANSI_Colors.RESET);
+            System.out.println(
+                    ANSI_Colors.RED + "El comercio cierra sus puertas a los clientes y empleados." + ANSI_Colors.RESET);
             cierre.compareAndExchange(true, false);
-
 
         } catch (InterruptedException e) {
             Logger.getLogger(ParqueDiversiones.class.getName()).log(Level.SEVERE, null, e);
@@ -162,20 +162,22 @@ public class ParqueDiversiones {
                 // Lo realizo así el hilo no
                 // queda atascado
 
-                System.out.println("El visitante " + Thread.currentThread().getName()
-                        + " ingresó a la sala de espera de la " +ANSI_Colors.CYAN +"  montaña rusa." + ANSI_Colors.RESET);
+                System.out.println(ANSI_Colors.CYAN + " [Montaña]" + ANSI_Colors.RESET + " El visitante "
+                        + Thread.currentThread().getName()
+                        + " ingresó a la sala de espera de la  montaña rusa.");
 
                 subirMontañaRusa(); // Solo si ingresa puede subirse a la montaña rusa.
 
             } else {
 
-                    System.out.println("El visitante " + Thread.currentThread().getName() + " se va de la atraccion" +  ANSI_Colors.CYAN + "  montaña rusa "+ ANSI_Colors.RESET);
+                System.out.println(ANSI_Colors.CYAN + " [Montaña]" + ANSI_Colors.RESET + "El visitante "
+                        + Thread.currentThread().getName() + " se va de la atraccion  montaña rusa.");
 
-                
             }
 
         } catch (InterruptedException e) {
-            System.out.println(Thread.currentThread().getName() + " fue interrumpido.");
+            System.out.println(ANSI_Colors.CYAN + " [Montaña] " + ANSI_Colors.RESET + Thread.currentThread().getName()
+                    + " fue interrumpido.");
         }
 
     }
@@ -184,26 +186,30 @@ public class ParqueDiversiones {
 
         try {
 
-            if(estado.get()){
+            if (estado.get()) {
 
-            mutex.acquire(); // Una vez que sube
-            esperaMontaña.release(); // Libera el lugar de la sala de espera.
-            System.out.println("El visitante " + Thread.currentThread().getName() + " Se sentó en la " +ANSI_Colors.CYAN +"  montaña rusa." + ANSI_Colors.RESET);
+                mutex.acquire(); // Una vez que sube
+                esperaMontaña.release(); // Libera el lugar de la sala de espera.
+                System.out.println(ANSI_Colors.CYAN + " [Montaña] " + ANSI_Colors.RESET + "El visitante "
+                        + Thread.currentThread().getName() + " Se sentó en la  montaña rusa.");
 
-            ocupantes.acquire();
-            ocupantesMontaña++;
-            System.out.println("Ocupantes: " + ocupantesMontaña + " /5");
-            ocupantes.release();
+                ocupantes.acquire();
+                ocupantesMontaña++;
+                System.out.println(ANSI_Colors.CYAN + " [Montaña] " + ANSI_Colors.RESET + "Ocupantes: "
+                        + ocupantesMontaña + " /5");
+                ocupantes.release();
 
-            sillasMontaña.release(); // Le libero un permiso al empleado de la montaña rusa.
+                sillasMontaña.release(); // Le libero un permiso al empleado de la montaña rusa.
 
-            bajarMontañaRusa(); // Preguntar si está bien poner estos metodos dentro de otros metodos.
+                bajarMontañaRusa(); // Preguntar si está bien poner estos metodos dentro de otros metodos.
 
-            }else{
+            } else {
 
-                System.out.println(Thread.currentThread().getName() + " se va de la "+ANSI_Colors.CYAN +"  montaña rusa " + ANSI_Colors.RESET + " porque el parque está cerrando..");
+                System.out
+                        .println(ANSI_Colors.CYAN + " [Montaña] " + ANSI_Colors.RESET + Thread.currentThread().getName()
+                                + " se va de la  montaña rusa porque el parque está cerrando..");
+                esperaMontaña.release();
             }
-         
 
         } catch (InterruptedException ex) {
             Logger.getLogger(ParqueDiversiones.class.getName()).log(Level.SEVERE, null, ex);
@@ -217,13 +223,12 @@ public class ParqueDiversiones {
         try {
 
             bajarMontaña.acquire();
-            System.out.println("El visitante " + Thread.currentThread().getName() + " se baja de la "+ANSI_Colors.CYAN +"  montaña rusa." + ANSI_Colors.RESET);
+            System.out.println(ANSI_Colors.CYAN + " [Montaña] " + ANSI_Colors.RESET + "El visitante "
+                    + Thread.currentThread().getName() + " se baja de la  montaña rusa.");
 
+            if (estado.get()) { // SI todavía no son las 18 horas puede seguir entrando gente.
 
-            if(estado.get()){ //SI todavía no son las 18 horas puede seguir entrando gente.
-
-            mutex.release(); // Una vez que baja, puede subir otra persona de la sala de espera.
-
+                mutex.release(); // Una vez que baja, puede subir otra persona de la sala de espera.
 
             }
 
@@ -238,18 +243,22 @@ public class ParqueDiversiones {
 
             if (estado.get()) {
 
-                if (sillasMontaña.tryAcquire(5,5, TimeUnit.SECONDS)) {// Para que no quede colgada por si cierra el lugar.
+                if (sillasMontaña.tryAcquire(5, 5, TimeUnit.SECONDS)) {// Para que no quede colgada por si cierra el
+                                                                       // lugar.
 
-                    System.out.println("La " +ANSI_Colors.CYAN +"  montaña rusa " + ANSI_Colors.RESET+ " está llena.. arranca");
+                    System.out.println(ANSI_Colors.CYAN + " [Montaña] " + ANSI_Colors.RESET
+                            + "La  montaña rusa. está llena.. arranca");
 
                     Thread.sleep(500);
 
-                    System.out.println("La "  +ANSI_Colors.CYAN +"  montaña rusa " + ANSI_Colors.RESET + " terminó su recorrido");
+                    System.out.println(ANSI_Colors.CYAN + " [Montaña] " + ANSI_Colors.RESET
+                            + "La  montaña rusa. terminó su recorrido");
 
                     ocupantesMontaña = 0;
                     bajarMontaña.release(5);
                 } else {
-                    System.out.println("No llegaron pasajeros suficientes y la "  +ANSI_Colors.CYAN + "  montaña rusa " + ANSI_Colors.RESET + " no puede iniciar.");
+                    System.out.println(ANSI_Colors.CYAN + " [Montaña] " + ANSI_Colors.RESET
+                            + "No llegaron pasajeros suficientes y la montaña rusa  no puede iniciar.");
                 }
 
             }
@@ -260,10 +269,6 @@ public class ParqueDiversiones {
         }
 
     }
-
-
-
-
 
     // Los autos chocadores son en total 10 autos, y cada uno requiere dos personas.
     // Comienza solo cuándo todos los autos están ocupados.
@@ -277,24 +282,26 @@ public class ParqueDiversiones {
 
         try {
 
-            mut.acquire();
-            cantidadP++;
-            mut.release();
-
             subirAuto.acquire();
 
-            if (estado.get()) {
+            if (estado.get()) { // Sí todavía sigue abierto el parque..
 
-                System.out.println("El visitante " + Thread.currentThread().getName() + " Se subió a un " + ANSI_Colors.BLUE
-                        + " auto chocador" + ANSI_Colors.RESET );
+                System.out.println(ANSI_Colors.BLUE + " [Autos] " + ANSI_Colors.RESET + "El visitante "
+                        + Thread.currentThread().getName() + " se subió a un auto chocador.");
+
+                mut.acquire();
+                cantidadP++;
+                System.out.println(ANSI_Colors.BLUE + " [Autos] " + ANSI_Colors.RESET
+                        + "Cantidad personas en autos chocadores: " + cantidadP + " /20");
+                mut.release();
 
                 encenderAuto.release(); // Deben liberar 20 permisos
 
                 bajarAutoChocador(); // Lo pogno acá ya que solo se sube al auto si entra a este método
 
             } else {
-                System.out.println(Thread.currentThread().getName() + " Se va de los + " + ANSI_Colors.BLUE
-                        + " autos chocadores " + ANSI_Colors.RESET + " porque cerró el parque.");
+                System.out.println(ANSI_Colors.BLUE + " [Autos] " + ANSI_Colors.RESET + Thread.currentThread().getName()
+                        + " Se va de los  autos chocadores. porque cerró el parque.");
             }
 
         } catch (InterruptedException e) {
@@ -308,13 +315,15 @@ public class ParqueDiversiones {
 
         try {
 
-            bajarAuto.tryAcquire(5, TimeUnit.SECONDS); // acquireINterrupted sirve?
+            bajarAuto.acquire();
 
-            System.out.println("El visitante " + Thread.currentThread().getName()
-                    + " se baja de la atracción" + ANSI_Colors.BLUE + " autos chocadores" + ANSI_Colors.RESET +":)");
+            System.out.println(ANSI_Colors.BLUE + " [Autos] " + ANSI_Colors.RESET + "El visitante "
+                    + Thread.currentThread().getName() + " se baja de la atracción autos chocadores");
+
             mut.acquire();
             cantidadP--;
             mut.release();
+
             subirAuto.release(); // Por cada uno que se baja, se puede subir otro
 
         } catch (InterruptedException e) {
@@ -326,9 +335,10 @@ public class ParqueDiversiones {
 
         try {
 
-            if (estado.get() && encenderAuto.tryAcquire(20, 6, TimeUnit.SECONDS)) {
+            if (estado.get() && encenderAuto.tryAcquire(20, 6, TimeUnit.MINUTES)) { // ESPERA UN MINUTO
 
-                System.out.println("La atracción de "+ ANSI_Colors.BLUE + " auto chocadores" + ANSI_Colors.RESET +" inició..");
+                System.out.println(ANSI_Colors.BLUE + " [Autos] " + ANSI_Colors.RESET
+                        + "La atracción de  autos chocadores inició..");
 
                 detenerAutoC();
 
@@ -336,7 +346,7 @@ public class ParqueDiversiones {
                 if (!estado.get()) { // Sí está cerrado..
                     if (cantidadP > 0) {
 
-                        subirAuto.release(cantidadP); //Los liberamos para que se vayan.
+                        subirAuto.release(cantidadP); // Los liberamos para que se vayan.
 
                     }
 
@@ -353,8 +363,11 @@ public class ParqueDiversiones {
 
         try {
 
-            System.out.println("La atracción de " + ANSI_Colors.BLUE + " autos chocadores" + ANSI_Colors.RESET +" se detiene.");
-            bajarAuto.release(20);
+            System.out.println(
+                    ANSI_Colors.BLUE + " [Autos] " + ANSI_Colors.RESET
+                            + " La atracción de  autos chocadores se detiene.");
+
+            bajarAuto.release(cantidadP);
 
         } catch (Exception e) {
             // TODO: handle exception
@@ -390,18 +403,21 @@ public class ParqueDiversiones {
             if (estado.get()) { // Si está abierto el parque
 
                 cantidadBarco++;
-                System.out.println("El visitante " + Thread.currentThread().getName()
-                        + " ingresó al barco pirata. Cantidad: " + cantidadBarco);
+                System.out.println(ANSI_Colors.PURPLE + " [Barco] " + ANSI_Colors.RESET
+                        + Thread.currentThread().getName() + " ingresó al barco pirata. Cantidad: " + cantidadBarco);
 
                 if (cantidadBarco == 20) {
 
-                    subirBarco.set(false);
+                    subirBarco.set(false); // Sí ya subieron 20, ponemos la variable en false para que no entre más
+                                           // gente.
                 }
+
+                bajarBarcoPirata();
 
             } else {
 
-                System.out.println(
-                        "El visitante " + Thread.currentThread() + " debe irse del barco porque cerró el parque.");
+                System.out.println(ANSI_Colors.PURPLE + " [Barco] " + ANSI_Colors.RESET
+                        + Thread.currentThread().getName() + " debe irse del  barco pirata porque cerró el parque.");
             }
 
         } catch (InterruptedException e) {
@@ -425,17 +441,22 @@ public class ParqueDiversiones {
                 }
 
                 cantidadBarco--;
-                System.out.println("El visitante " + Thread.currentThread().getName()
-                        + " bajó del barco pirata. Cantidad:" + cantidadBarco);
+                System.out.println(ANSI_Colors.PURPLE + " [Barco] " + ANSI_Colors.RESET
+                        + Thread.currentThread().getName() + " bajó del barco pirata Cantidad:" + cantidadBarco);
 
                 if (cantidadBarco == 0) {
 
-                    System.out.println("El visitante " + Thread.currentThread().getName() + " es el último en bajar");
+                    System.out.println(ANSI_Colors.PURPLE + " [Barco] " + ANSI_Colors.RESET + "El visitante "
+                            + Thread.currentThread().getName() + " es el último en bajar");
                     bajarBarco.set(false); // No puede bajar más nadie.
                     visitantes.signalAll(); // Despertamos a todos los que están esperando los que están en el barco.
 
                 }
 
+            } else {
+
+                System.out.println(ANSI_Colors.PURPLE + " [Barco] " + ANSI_Colors.RESET
+                        + Thread.currentThread().getName() + " no pudo subir al barco pirata porque cerró el parque.");
             }
 
         } catch (InterruptedException e) {
@@ -455,7 +476,9 @@ public class ParqueDiversiones {
             barcoP.await(10, TimeUnit.SECONDS); // Espera 10 segundos
             subirBarco.set(false);
 
-            System.out.println("El barco pirata inició :D");
+            System.out
+                    .println(ANSI_Colors.PURPLE + " [Barco] " + ANSI_Colors.RESET
+                            + "El  barco pirata  inició su vuelta.");
 
         } catch (InterruptedException e) {
 
@@ -470,7 +493,7 @@ public class ParqueDiversiones {
         barcoPirata.lock();
         try {
 
-            System.out.println("El barco pirata terminó");
+            System.out.println(ANSI_Colors.PURPLE + " [Barco] " + ANSI_Colors.RESET + "El barco pirata terminó");
 
             bajarBarco.set(true);
             subirBarco.set(true);
@@ -512,11 +535,12 @@ public class ParqueDiversiones {
         String pase;
 
         try {
-            visitFicha.acquire();
+            visitFicha.acquire(); // Lo uso para que se intercambien de A UNO
 
             pase = intercambioF.exchange(Thread.currentThread().getName(), 5, TimeUnit.SECONDS); // Espera 5 segundos.
 
-            System.out.println("El hilo " + Thread.currentThread().getName() + " compró una ficha. Obtuvo un " + pase);
+            System.out.println(ANSI_Colors.YELLOW + " [Exchanger] " + ANSI_Colors.RESET + "El hilo "
+                    + Thread.currentThread().getName() + " compró una ficha. Obtuvo un " + pase);
 
             cambiarFichaJugar();
 
@@ -524,7 +548,18 @@ public class ParqueDiversiones {
 
         } catch (TimeoutException a) {
 
-            System.out.println("El hilo " + Thread.currentThread().getName() + " se cansó de esperar y se va..");
+            if (estado.get()) {
+
+                System.out
+                        .println(ANSI_Colors.YELLOW + " [Exchanger] " + ANSI_Colors.RESET
+                                + Thread.currentThread().getName() + " no pudo intercambiar su ficha y se va.");
+
+            } else {
+
+                System.out.println(ANSI_Colors.YELLOW + " [Exchanger] " + ANSI_Colors.RESET
+                        + Thread.currentThread().getName() + " no pudo intercambiar porque cerró el parque y se va.");
+            }
+
             visitFicha.release();
 
         }
@@ -536,9 +571,10 @@ public class ParqueDiversiones {
         try {
             premio = intercambioP.exchange(Thread.currentThread().getName(), 5, TimeUnit.SECONDS); // Espera 5 segundos
                                                                                                    // para que no haya
-                                                                                                   // deadlock
+                                                                                                   // // deadlock
 
-            System.out.println("El visitante " + Thread.currentThread().getName()
+            System.out.println(ANSI_Colors.YELLOW + " [Exchanger] " + ANSI_Colors.RESET + "El visitante "
+                    + Thread.currentThread().getName()
                     + " intercambió una ficha de juego para obtener un " + premio);
             visitFicha.release();
 
@@ -547,8 +583,19 @@ public class ParqueDiversiones {
         } catch (InterruptedException e) {
             // TODO: handle exception
         } catch (TimeoutException e) {
-            System.out
-                    .println("El hilo " + Thread.currentThread().getName() + " no pudo intercambiar su ficha y se va.");
+
+            if (estado.get()) {
+
+                System.out
+                        .println(ANSI_Colors.YELLOW + " [Exchanger] " + ANSI_Colors.RESET
+                                + Thread.currentThread().getName() + " no pudo intercambiar su ficha y se va.");
+
+            } else {
+
+                System.out.println(ANSI_Colors.YELLOW + " [Exchanger] " + ANSI_Colors.RESET
+                        + Thread.currentThread().getName() + " no pudo intercambiar porque cerró el parque y se va.");
+            }
+
             visitFicha.release();
 
         }
@@ -565,7 +612,8 @@ public class ParqueDiversiones {
 
                 ficha = intercambioF.exchange("pase", 2, TimeUnit.SECONDS);
 
-                System.out.println("El encargado vendió una ficha a " + ficha);
+                System.out.println(ANSI_Colors.YELLOW + " [Exchanger] " + ANSI_Colors.RESET
+                        + "El encargado vendió una ficha a " + ficha);
 
                 cambiarPremioE();
 
@@ -575,7 +623,17 @@ public class ParqueDiversiones {
             // TODO: handle exception
         } catch (TimeoutException e) {
 
-            System.out.println("El encargado no intercambiar nada, porque no hay ningún visitante.");
+            if (estado.get()) {
+
+                System.out.println(ANSI_Colors.YELLOW + " [Exchanger] " + ANSI_Colors.RESET
+                        + "El encargado de intercambios no vendió ninguna ficha.");
+
+            } else {
+
+                System.out.println(ANSI_Colors.YELLOW + " [Exchanger] " + ANSI_Colors.RESET
+                        + "el encargado de intercambio se va porque cerró el parque.");
+            }
+
         }
 
     }
@@ -586,13 +644,24 @@ public class ParqueDiversiones {
         try {
             f = intercambioP.exchange("premio " + generarPremio(), 2, TimeUnit.SECONDS);
 
-            System.out.println("El encargado intercambió un premio con " + f);
+            System.out.println(ANSI_Colors.YELLOW + " [Exchanger] " + ANSI_Colors.RESET
+                    + "El encargado intercambió un premio con " + f);
 
         } catch (InterruptedException e) {
             // TODO: handle exception
         } catch (TimeoutException e) {
 
-            System.out.println("El encargado no pudo intercambiar ningún premio.");
+            if (estado.get()) {
+
+                System.out.println(ANSI_Colors.YELLOW + " [Exchanger] " + ANSI_Colors.RESET
+                        + "El encargado no pudo intercambiar ningún premio.");
+
+            } else {
+
+                System.out.println(ANSI_Colors.YELLOW + " [Exchanger] " + ANSI_Colors.RESET
+                        + "El no pudo intercambiar ninguna ficha porque cerró el parque.");
+            }
+
         }
 
     }
@@ -621,42 +690,71 @@ public class ParqueDiversiones {
 
     private int cantidadPersonasComiendo = 0;
 
-    private int cM = 4;
+    private int cM;
 
-    private Semaphore cantidadMesas = new Semaphore(4 * cM); // Para tener el conteo de personas que están esperando.
+    private Semaphore cantidadSillas = new Semaphore(4 * cM); // Para tener el conteo de personas que están esperando.
+    private Semaphore mu = new Semaphore(1);
 
     private CyclicBarrier mesa = new CyclicBarrier(4);
+
+    private int cantidadM = 0;
 
     public void ingresarComedor() {
 
         try {
+            // Verificar estado y tratar de adquirir la silla
+            if (estado.get() && cantidadSillas.tryAcquire(1, 8, TimeUnit.SECONDS)) {
 
-            if (estado.get() && cantidadMesas.tryAcquire(1, 5, TimeUnit.SECONDS)) {// Trata de entrar al comedor 5
-                                                                                   // segundos si esta abierto.
+                System.out.println(ANSI_Colors.RED + " [Comedor] " + ANSI_Colors.RESET
+                        + Thread.currentThread().getName() + " ingresa al comedor y espera a los demás.");
+      
+                // Esperar en la barrera para que lleguen los 4 hilos
+                mesa.await(8, TimeUnit.SECONDS); 
 
-                System.out.println("El hilo " + Thread.currentThread().getName() + " ingresa al comedor");
+                // Si la barrera se completa con éxito, los hilos avanzan a comer
+                System.out.println(ANSI_Colors.RED + " [Comedor] " + ANSI_Colors.RESET + "La persona "
+                        + Thread.currentThread().getName() + " ya está comiendo.");
+                Thread.sleep(1000);
 
-                mesa.await(); // Acá esperan y pasan recién cuándo hay 4 hilos.
-
-                System.out.println("La persona" + Thread.currentThread().getName() + " ya está comiendo :D");
-                Thread.sleep(1000); // No afecta en nada creo´
-                cantidadMesas.release();
 
             } else {
-                System.out.println("La persona " + Thread.currentThread().getName()
-                        + " se cansó de esperar en el comedor y se va..");
+                // Manejo de fallos en la adquisición o si el parque cerró
+                if (!estado.get()) {
+                    System.out.println(ANSI_Colors.RED + " [Comedor] " + ANSI_Colors.RESET
+                            + Thread.currentThread().getName() + " se va del comedor porque cerró el parque.");
+                } else {
+                    System.out.println(ANSI_Colors.RED + " [Comedor] " + ANSI_Colors.RESET + "La persona "
+                            + Thread.currentThread().getName() + " se cansó de esperar en el comedor y se va..");
+                }
             }
 
         } catch (InterruptedException e) {
-            // TODO: handle exception
+            // Re-interrumpir el hilo es una buena práctica
+            Thread.currentThread().interrupt();
+            System.out
+                    .println(ANSI_Colors.RED + " [Comedor] " + ANSI_Colors.RESET + Thread.currentThread().getName()
+                            + " fue interrumpido y se retira.");
 
-            cantidadMesas.release();
-        } catch (BrokenBarrierException e) { // Si no puede ingresar, solo deja libre el lugar del comedor.
+        }catch (TimeoutException e){
 
-            cantidadMesas.release();
+            System.out.println(ANSI_Colors.RED + " [Comedor] " + ANSI_Colors.RESET + Thread.currentThread().getName() + " No pudo comer porque no llegó nadie.");
+            cantidadSillas.release();
+
+        } catch (BrokenBarrierException e) {
+            // Ocurre si otro hilo falló o fue interrumpido.
+            System.out
+                    .println(ANSI_Colors.RED + " [Comedor] " + ANSI_Colors.RESET + Thread.currentThread().getName()
+                            + " no pudo comer porque la barrera se rompió.");
+
+        } finally {
+            // Liberar la silla si se adquirió, independientemente de si comió o no.
+
+            cantidadSillas.release();
+            System.out.println(
+                    ANSI_Colors.RED + " [Comedor] " + ANSI_Colors.RESET + Thread.currentThread().getName()
+                            + " ha liberado la silla.");
 
         }
-
     }
 
     /*
@@ -684,22 +782,22 @@ public class ParqueDiversiones {
 
             while (!bandera.get()) { // Mientras no pueda ingresar.
 
-                System.out.println(Thread.currentThread().getName() + " está esperando el tren.. ");
+                System.out.println(ANSI_Colors.GREEN + " [Tren] " + ANSI_Colors.RESET + Thread.currentThread().getName() + " está esperando el tren.. ");
                 salaEspera.await();
 
             }
 
-            if (estado.get()) {
+            if (estado.get()) { //Sí esta abierto se sube al tren.
 
                 tren.put(Thread.currentThread());
 
-                System.out.println(Thread.currentThread().getName() + " se subió al tren. ");
+                System.out.println(ANSI_Colors.GREEN + " [Tren] " + ANSI_Colors.RESET + Thread.currentThread().getName() + " se subió al tren. ");
 
                 bajarTren();
 
             } else {// SI está cerrado..
 
-                System.out.println("El parque ya cerró y " + Thread.currentThread().getName() + " se va del parque.");
+                System.out.println(ANSI_Colors.GREEN + " [Tren] " + ANSI_Colors.RESET + "El parque ya cerró y " + Thread.currentThread().getName() + " se va del parque.");
             }
 
         } catch (InterruptedException e) {
@@ -721,7 +819,7 @@ public class ParqueDiversiones {
 
             esperar.await();
 
-            System.out.println(Thread.currentThread().getName() + " se bajó del tren.");
+            System.out.println(ANSI_Colors.GREEN + " [Tren] " + ANSI_Colors.RESET + Thread.currentThread().getName() + " se bajó del tren.");
 
         } catch (InterruptedException e) {
         } finally {
@@ -740,7 +838,7 @@ public class ParqueDiversiones {
             esperarTren.lock();
 
             if (estado.get()) { // Sí el parque está abierto...
-                System.out.println("El tren arrancará en unos minutos...");
+                System.out.println(ANSI_Colors.GREEN + " [Tren] " + ANSI_Colors.RESET + "El tren arrancará en unos minutos...");
                 bandera.compareAndExchange(false, true); // Permite la entrada a los visitantes.
 
                 salaEspera.signalAll(); // Despierta a todos si había alguien esperando.
@@ -757,10 +855,10 @@ public class ParqueDiversiones {
 
                 bandera.set(false); // Evitamos el paso de más gente.
 
-                System.out.println("El tren arrancó.");
+                System.out.println(ANSI_Colors.GREEN + " [Tren] " + ANSI_Colors.RESET + "El tren arrancó.");
 
             } else {
-                System.out.println("El parque ya cerró y las personas en la sala de espera deben irse.");
+                System.out.println(ANSI_Colors.GREEN + " [Tren] " + ANSI_Colors.RESET +"El parque ya cerró y las personas en la sala de espera deben irse.");
                 bandera.compareAndExchange(false, true);
                 salaEspera.signalAll();
 
@@ -779,11 +877,11 @@ public class ParqueDiversiones {
         try {
             esperarTren.lock();
 
-            System.out.println("El tren terminó su viaje y se bajan los pasajeros...");
+            System.out.println(ANSI_Colors.GREEN + " [Tren] " + ANSI_Colors.RESET + "El tren terminó su viaje y se bajan los pasajeros...");
 
             esperar.signalAll();
 
-            bandera.set(true);
+            bandera.set(true); //Puede subir más gente.
 
             salaEspera.signalAll();
 
@@ -792,6 +890,16 @@ public class ParqueDiversiones {
         }
 
     }
+
+
+    public void cerrarTren(){
+
+        System.out.println(ANSI_Colors.GREEN + " [Tren] " + ANSI_Colors.RESET +"El empleado cierra la atracción de tren y se va a su casa.");
+
+    }
+
+
+
 
     public boolean getEstado() {
 
@@ -834,16 +942,16 @@ public class ParqueDiversiones {
 
             // Primero debe obtener el visor.
 
-            System.out.println(Thread.currentThread().getName() + " está esperando en la sala de VR.");
+            System.out.println(ANSI_Colors.BOLD + " [VR] " + ANSI_Colors.RESET + Thread.currentThread().getName() + " está esperando en la sala de VR.");
             cantidadSala++;
             salaEsperaVR.await();
 
             if (getEstado()) { // SI el negocio está abierto
-                System.out.println(Thread.currentThread().getName() + " pudo avanzar y obtiene un visor.");
+                System.out.println(ANSI_Colors.BOLD + " [VR] " + ANSI_Colors.RESET +Thread.currentThread().getName() + " pudo avanzar y obtiene un visor.");
                 cantidadSala--;
                 esperarManoplas();
             } else {
-                System.out.println(Thread.currentThread().getName() + " se va porque el parque está cerrado.");
+                System.out.println(ANSI_Colors.BOLD + " [VR] " + ANSI_Colors.RESET +Thread.currentThread().getName() + " se va porque el parque está cerrado.");
             }
 
         } catch (InterruptedException e) {
@@ -861,17 +969,17 @@ public class ParqueDiversiones {
 
             // Espera manoplas libres
 
-            System.out.println(Thread.currentThread().getName() + " está esperando dos manoplas.");
+            System.out.println(ANSI_Colors.BOLD + " [VR] " + ANSI_Colors.RESET +Thread.currentThread().getName() + " está esperando dos manoplas.");
             cantidadManopla++;
             manopla.await();
 
             if (getEstado()) { // SI el negocio está abierto
-                System.out.println(Thread.currentThread().getName() + " pudo avanzar y tiene un visor y dos manoplas.");
+                System.out.println(ANSI_Colors.BOLD + " [VR] " + ANSI_Colors.RESET +Thread.currentThread().getName() + " pudo avanzar y tiene un visor y dos manoplas.");
                 cantidadManopla--;
                 esperarBase();
 
             } else {
-                System.out.println(Thread.currentThread().getName() + " se va porque el parque está cerrado.");
+                System.out.println(ANSI_Colors.BOLD + " [VR] " + ANSI_Colors.RESET +Thread.currentThread().getName() + " se va porque el parque está cerrado.");
             }
 
         } catch (InterruptedException e) {
@@ -889,18 +997,18 @@ public class ParqueDiversiones {
 
             // Espera base libre
 
-            System.out.println(Thread.currentThread().getName() + " está esperando una base.");
+            System.out.println(ANSI_Colors.BOLD + " [VR] " + ANSI_Colors.RESET +Thread.currentThread().getName() + " está esperando una base.");
             cantidadBAse++;
             base.await();
 
             if (getEstado()) { // SI el negocio está abierto
-                System.out.println(
+                System.out.println(ANSI_Colors.BOLD + " [VR] " + ANSI_Colors.RESET +
                         Thread.currentThread().getName() + " pudo avanzar y tiene un visor, dos manoplas y la base.");
                 cantidadBAse--;
                 jugarYDevolverEquipo();
 
             } else {
-                System.out.println(Thread.currentThread().getName() + " se va porque el parque está cerrado.");
+                System.out.println(ANSI_Colors.BOLD + " [VR] " + ANSI_Colors.RESET +Thread.currentThread().getName() + " se va porque el parque está cerrado.");
             }
 
         } catch (InterruptedException e) {
@@ -916,10 +1024,10 @@ public class ParqueDiversiones {
 
         try {
 
-            System.out.println(Thread.currentThread().getName() + " juega en VR...");
+            System.out.println(ANSI_Colors.BOLD + " [VR] " + ANSI_Colors.RESET +Thread.currentThread().getName() + " juega en VR...");
             jugarVR.await(3, TimeUnit.SECONDS);
 
-            System.out.println(Thread.currentThread().getName() + " devuelve el equipo.");
+            System.out.println(ANSI_Colors.BOLD + " [VR] " + ANSI_Colors.RESET +Thread.currentThread().getName() + " devuelve el equipo.");
             manoplas = manoplas + 2;
             bases = bases + 1;
             visores = visores + 1;
@@ -941,7 +1049,7 @@ public class ParqueDiversiones {
                 if (visores > 0) {
                     visores--;
 
-                    System.out.println("El empleado entrega un visor. Cantidad visores " + visores);
+                    System.out.println(ANSI_Colors.BOLD + " [VR] " + ANSI_Colors.RESET +"El empleado entrega un visor. Cantidad visores " + visores);
                     salaEsperaVR.signal();
 
                 }
@@ -950,7 +1058,7 @@ public class ParqueDiversiones {
             if (cantidadManopla > 0) {
                 if (manoplas > 2) {
                     manoplas = manoplas - 2;
-                    System.out.println("El empleado entrega dos manoplas. Cantidad manoplas: " + manoplas);
+                    System.out.println(ANSI_Colors.BOLD + " [VR] " + ANSI_Colors.RESET +"El empleado entrega dos manoplas. Cantidad manoplas: " + manoplas);
 
                     manopla.signal();
                 }
@@ -960,7 +1068,7 @@ public class ParqueDiversiones {
 
                 if (bases > 1) {
                     bases--;
-                    System.out.println("EL empleado entrega una base. Cantidad bases: " + base);
+                    System.out.println(ANSI_Colors.BOLD + " [VR] " + ANSI_Colors.RESET +"EL empleado entrega una base. Cantidad bases: " + base);
 
                     base.signal();
 
@@ -978,7 +1086,7 @@ public class ParqueDiversiones {
         juegoVRLock.lock();
 
         try {
-            System.out.println("El parque de diversiones ya cerró y el empleado cierra el local de VR.");
+            System.out.println(ANSI_Colors.BOLD + " [VR] " + ANSI_Colors.RESET +"El parque de diversiones ya cerró y el empleado cierra el local de VR.");
 
             salaEsperaVR.signalAll();
             manopla.signalAll();

@@ -3,7 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 
-
+import java.util.Random;
 import java.util.concurrent.Exchanger;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -24,42 +24,88 @@ public class Visitante implements Runnable {
     }
 
     public void run() {
-        int i = 0;
+
+        Random r = new Random();
 
         try {
+            int i = 0;
 
-            while(!parque.getEstado()){
+            while (true) { // Se repite infinitamente.
 
-                if (i==0){ //Esto es para que solo lo miprima una vez.
-                    System.out.println(Thread.currentThread().getName() + " no puede ingresar porque el parque está cerrado.");
-                    i =1;
+                while (!parque.getEstado()) {
+                    if (i == 0) {
+                        System.out.println(Thread.currentThread().getName() +
+                                " no puede ingresar porque el parque está cerrado.");
+                        i = 1;
+                    }
+                    Thread.sleep(3000);
                 }
 
-                 Thread.sleep(3400);
+                parque.ingresarParque(); // INgresa al parque de atracciones.
+                System.out.println(Thread.currentThread().getName() + " ingresó al parque.");
+
+                while (parque.getEstado()) {
+
+                    int opcion = r.nextInt(8); // número entre 0 y 7
+
+                    switch (opcion) {
+                        case 0:
+                            parque.subirAutoChocador();
+                            Thread.sleep(1000);
+
+                            break;
+                        case 1:
+                            parque.subirBarcoPirata();
+                            Thread.sleep(1000);
+
+                            break;
+                        case 2:
+                            parque.cambiarFichaV();
+                            Thread.sleep(1000);
+
+                            break;
+                        case 3:
+                            parque.ingresarComedor();
+                            Thread.sleep(1000);
+
+                            break;
+                        case 4:
+                            parque.subirTren();
+                            Thread.sleep(1000);
+
+                            break;
+                        case 5:
+                            parque.ingresarVR();
+                            Thread.sleep(1000);
+
+                            break;
+
+                        case 6:
+
+                            System.out.println(Thread.currentThread().getName() + " decidió ir al shopping.");
+                            Thread.sleep(1000);
+                            break;
+
+                        case 7:
+                            parque.ingresarComedor();
+                            Thread.sleep(1000);
+
+                            break;
+
+                        default:
+                            Thread.sleep(1000);
+                            break;
+
+                    }
+
+                    Thread.sleep(1500); // pausa entre atracciones
+                }
+
+                System.out.println(Thread.currentThread().getName() + " se va del parque porque  cerró.");
 
             }
 
-             parque.ingresarParque(); //Ingresa al parque
-
-
-            while (parque.getEstado()) { //Mientras esté abierto. Si no elige ir al shopping.
-            
-             parque.esperarMontañaRusa();
-             Thread.sleep(1000);
-            
-                
-            
-                
-            }
-
-            System.out.println(Thread.currentThread().getName() + " fue del parque de diversiones porque esta cerrando");
-     
-
-         
-
-            
-
-        } catch (Exception err) {
+        } catch (InterruptedException e) {
         }
 
     }

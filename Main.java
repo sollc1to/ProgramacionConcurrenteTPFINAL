@@ -2,77 +2,54 @@
 public class Main {
     public static void main(String[] args) {
 
-        ParqueDiversiones parque = new ParqueDiversiones(1,2);
+        String[] nombres = {
+                "Lucas", "María", "Sofía", "Juan", "Lautaro",
+                "Camila", "Mateo", "Julieta", "Thiago", "Valentina",
+                "Bruno", "Martina", "Benjamín", "Luciana", "Agustín",
+                "Emma", "Santiago", "Isabella", "Franco", "Renata",
+                "Tomás", "Mía", "Bautista", "Morena", "Felipe",
+                "Zoe", "Joaquín", "Catalina", "Simón", "Abril",
+                "Ramiro", "Elena", "Nicolás", "Guadalupe", "Gael",
+                "Luna", "Axel"
+        };
 
-    
-     /*     Thread barcoP = new Thread(new BarcoPirata(parque));
-        
-         barcoP.start();
+        ParqueDiversiones parque = new ParqueDiversiones(1, 2);
 
-         
-*/
-                  
-         Thread reloj = new Thread(new Reloj(parque));
-         reloj.start();
+        Thread reloj = new Thread(new Reloj(parque));
+        reloj.start();
+        Thread empleado = new Thread(new Empleado(parque));
+        empleado.start();
 
-        Thread montana = new Thread(new EmpleadoMontañaR(parque));
+        Thread barcoP = new Thread(new EmpleadoBarcoPirata(parque)); // Opcion 1
+        barcoP.start();
+
+        Thread montana = new Thread(new EmpleadoMontañaR(parque)); //Opcion 2
 
         montana.start();
 
-        Thread empleado = new Thread(new Empleado(parque));
-        empleado.start();
-    /* 
-        Thread empleadoPremio = new Thread(new EmpleadoPremio(parque));
+
+        Thread empleadoPremio = new Thread(new EmpleadoPremio(parque)); //Opcion 3
         empleadoPremio.start();
 
-
-        */
-
-        Thread empleadoTren = new Thread(new Empleadotren(parque));
+        Thread empleadoTren = new Thread(new Empleadotren(parque)); //Opcion 4
         empleadoTren.start();
 
-
-        Thread empleadoVR = new Thread(new EmpleadoVR(parque));
+        Thread empleadoVR = new Thread(new EmpleadoVR(parque)); //OPcion 5
         empleadoVR.start();
 
-
-
-String[] nombres = {
-    "Lucas", "María", "Sofía", "Juan", "Lautaro",
-    "Camila"  , "Mateo", "Julieta", "Thiago", "Valentina",
-    "Bruno", "Martina", "Benjamín", "Luciana", "Agustín",
-    "Emma", "Santiago", "Isabella", "Franco", "Renata",
-    "Tomás", "Mía", "Bautista", "Morena", "Felipe",
-    "Zoe", "Joaquín", "Catalina", "Simón", "Abril",
-    "Ramiro", "Elena", "Nicolás", "Guadalupe", "Gael",
-    "Luna", "Axel", "Josefina", "Dylan", "Rocío",
-    "Iker", "Paula", "Maximiliano", "Carolina", "Cristóbal",
-    "Florencia", "Alex", "Ámbar", "Federico", "Alma",
-    "Ezequiel", "Pilar", "Ian", "Daniela", "Kevin",
-    "Malena", "Valentino", "Bianca", "Tiziano", "Sol",
-    "Ignacio", "Candela", "León", "Milagros", "Darío",
-    "Ariana", "Emilio", "Selena", "Hernán", "Noelia",
-    "Pablo", "Agostina", "Gabriel", "Carla", "Rodrigo",
-    "Victoria", "Elías", "Antonia", "Gonzalo", "Josefina",
-    "Rafael", "Mora", "Alan", "Nadia", "Diego",
-    "Celeste", "Fernando", "Amparo", "Hugo", "Camila",
-    "Mauricio", "Regina", "Ulises", "Tamara", "Félix",
-    "Aylén", "Oscar", "Jazmín", "Guido", "Nahir"
-};
-
+        Thread empleadoAuto = new Thread(new EmpleadoAutoChocador(parque)); //Opcion 6
+        empleadoAuto.start();
 
         for (int i = 0; i < nombres.length; i++) {
             try {
                 Thread visitante = new Thread(new Visitante(parque), nombres[i]);
                 visitante.start();
 
-                visitante.sleep(1400);
+                visitante.sleep(100);
 
-
-            
             } catch (Exception e) {
                 e.printStackTrace();
-            } 
+            }
         }
 
     }

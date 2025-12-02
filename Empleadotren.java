@@ -19,26 +19,27 @@ public class Empleadotren implements Runnable {
 
     public void run() {
 
-
-
-
-
-
-        while(!parque.getEstado()){ //Espera a que el parque abra..
-
-        }
-
         while (true) {
 
-            try {
-                parque.encenderTren();
-                Thread.sleep(10000);
+            while (!parque.getEstado()) { // Espera a que el parque abra..
 
-                parque.bajarPasajeros();
-                Thread.sleep(10000);
-
-            } catch (InterruptedException e) {
             }
+
+            while (parque.getCierre()) {
+
+                try {
+                    parque.encenderTren();
+                    Thread.sleep(10000);
+
+                    parque.bajarPasajeros();
+                    Thread.sleep(10000);
+
+                } catch (InterruptedException e) {
+                }
+
+            }
+
+            System.out.println("El empleado del tren se va a su casa.");
 
         }
 

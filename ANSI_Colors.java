@@ -12,7 +12,15 @@ public class ANSI_Colors {
     public static final String PURPLE = "\u001B[35m";
     public static final String CYAN = "\u001B[36m";
     public static final String WHITE = "\u001B[37m";
-
+// Colores de texto (extendidos/brillantes)
+public static final String BRIGHT_BLACK = "\u001B[90m";
+public static final String BRIGHT_RED = "\u001B[91m";
+public static final String BRIGHT_GREEN = "\u001B[92m";
+public static final String BRIGHT_YELLOW = "\u001B[93m";
+public static final String BRIGHT_BLUE = "\u001B[94m";
+public static final String BRIGHT_PURPLE = "\u001B[95m";
+public static final String BRIGHT_CYAN = "\u001B[96m";
+public static final String BRIGHT_WHITE = "\u001B[97m";
     // Colores de fondo
     public static final String BLACK_BG = "\u001B[40m";
     public static final String RED_BG = "\u001B[41m";
