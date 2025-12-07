@@ -8,11 +8,13 @@ import java.util.Random;
 public class Visitante implements Runnable {
 
     private ParqueDiversiones parque;
-    private int actividad; // 1 a 6
+    private Actividades act; // 1 a 6
+    private AtraccionesMecanicas atracc;
 
-    public Visitante(ParqueDiversiones parque, int actividad) {
+    public Visitante(ParqueDiversiones parque,Actividades act, AtraccionesMecanicas atracc) {
         this.parque = parque;
-        this.actividad = actividad;
+        this.act = act;
+        this.atracc = atracc;
     }
 
     public void run() {
@@ -30,21 +32,16 @@ public class Visitante implements Runnable {
                     Thread.sleep(3000);
                 }
 
-                parque.ingresarParque(); // Ingresa al parque de atracciones.
-                System.out.println(Thread.currentThread().getName() + " ingresó al parque.");
+                parque.comprarEntrada(); // Ingresa al parque de atracciones.
+                
 
-                while (parque.getEstado()) {
+                while(parque.getEstado()){
 
-                    if (actividad <= 6) { // En este caso solo ejecutamos la actividad individual.
+                    elegirActividad();
 
-                        ejecutarActividad();
 
-                    } else {
-                        ejecutarTodasActividades();
-                    }
-                    Thread.sleep(1500); // pausa entre atracciones
                 }
-
+            
                 System.out.println(Thread.currentThread().getName() + " se va del parque porque  cerró.");
 
             }
@@ -54,88 +51,45 @@ public class Visitante implements Runnable {
 
     }
 
-    private void ejecutarTodasActividades() {
 
-        Random r = new Random();
-        int act = r.nextInt(8); // número entre 0 y 7
+    public void elegirActividad() {
 
-        try {
+    int opcion = (int)(Math.random() * 7);  // 7 actividades → índices 0 a 6
 
-            switch (act) {
-                case 0:
-                    parque.subirAutoChocador();
-                    Thread.sleep(1000);
+    switch (opcion) {
 
-                    break;
-                case 1:
-                    parque.subirBarcoPirata();
-                    Thread.sleep(1000);
+        case 0:
+            act.ingresarVR();
+            break;
 
-                    break;
-                case 2:
-                    parque.cambiarFichaV();
-                    Thread.sleep(1000);
+        case 1:
+            act.subirTren();
+            break;
 
-                    break;
-                case 3:
-                    parque.ingresarComedor();
-                    Thread.sleep(1000);
+        case 2:
+            act.ingresarComedor();
+            break;
 
-                    break;
-                case 4:
-                    parque.subirTren();
-                    Thread.sleep(1000);
+        case 3:
+            act.cambiarFichaV();
+            break;
 
-                    break;
-                case 5:
-                    parque.ingresarVR();
-                    Thread.sleep(1000);
+        case 4:
+            atracc.subirBarcoPirata();
+            break;
 
-                    break;
+        case 5:
+            atracc.subirAutoChocador();
+            break;
 
-                case 6:
+        case 6:
+            atracc.esperarMontañaRusa();
+            break;
 
-                    System.out.println(Thread.currentThread().getName() + " decidió ir al shopping.");
-                    Thread.sleep(1000);
-                    break;
-
-                case 7:
-                    parque.ingresarComedor();
-                    Thread.sleep(1000);
-
-                    break;
-
-                default:
-                    Thread.sleep(1000);
-                    break;
-
-            }
-
-        } catch (InterruptedException e) {
-        }
-
+        default:
+            // nunca pasa
+            break;
     }
+}
 
-    private void ejecutarActividad() { // Este es para ejecutar un actividad individualmente.
-        switch (this.actividad) {
-            case 1:
-                parque.subirBarcoPirata();
-                break;
-            case 2:
-                parque.subirMontañaRusa(); // ajustá al nombre real del método
-                break;
-            case 3:
-                parque.cambiarFichaV(); // si este es "premio"
-                break;
-            case 4:
-                parque.subirTren();
-                break;
-            case 5:
-                parque.ingresarVR();
-                break;
-            case 6:
-                parque.subirAutoChocador();
-                break;
-        }
-    }
 }

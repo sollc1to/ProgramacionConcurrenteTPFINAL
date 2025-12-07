@@ -2,9 +2,13 @@
 public class EmpleadoVR implements Runnable {
 
     private ParqueDiversiones parque;
+    private Actividades act;
 
-    public EmpleadoVR(ParqueDiversiones parque) {
+    public EmpleadoVR(ParqueDiversiones parque, Actividades act) {
         this.parque = parque;
+
+        this.act = act;
+
     }
 
     public void run() {
@@ -19,7 +23,7 @@ public class EmpleadoVR implements Runnable {
 
                 try {
 
-                    parque.darEquipo();
+                    act.darEquipo();
                     Thread.sleep(1000);
 
                 } catch (InterruptedException e) {
@@ -29,7 +33,7 @@ public class EmpleadoVR implements Runnable {
 
             System.out.println("El empleado de VR se va a su casa.");
 
-            parque.cerrarLocalVR();
+            act.cerrarLocalVR();
 
         }
 

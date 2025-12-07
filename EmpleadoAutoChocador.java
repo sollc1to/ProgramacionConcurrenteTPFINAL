@@ -2,9 +2,11 @@
 public class EmpleadoAutoChocador implements Runnable {
 
     private ParqueDiversiones parque;
+    private AtraccionesMecanicas atrc;
 
-    public EmpleadoAutoChocador(ParqueDiversiones parque) {
+    public EmpleadoAutoChocador(ParqueDiversiones parque, AtraccionesMecanicas atrc) {
         this.parque = parque;
+        this. atrc =atrc;
     }
 
     public void run() {
@@ -23,10 +25,12 @@ public class EmpleadoAutoChocador implements Runnable {
 
             while (parque.getCierre()) {
 
-                parque.encenderAutoC();
+                atrc.encenderAutoC();
                 Thread.sleep(10000);
 
             }
+
+   
 
             System.out.println("EL empleado de los autos se va a su casa.");
 

@@ -11,13 +11,23 @@ import java.io.InterruptedIOException;
  * @author PC
  */
 public class Empleadotren implements Runnable {
-    ParqueDiversiones parque;
+    private ParqueDiversiones parque;
+    private Actividades tren;
+    
 
-    public Empleadotren(ParqueDiversiones parque) {
+    public Empleadotren(ParqueDiversiones parque, Actividades tren) {
+
+
+        this.tren = tren;
+
         this.parque = parque;
     }
 
     public void run() {
+
+
+        try {
+
 
         while (true) {
 
@@ -27,21 +37,23 @@ public class Empleadotren implements Runnable {
 
             while (parque.getCierre()) {
 
-                try {
-                    parque.encenderTren();
-                    Thread.sleep(10000);
 
-                    parque.bajarPasajeros();
-                    Thread.sleep(10000);
+                tren.encenderTren();
 
-                } catch (InterruptedException e) {
-                }
-
+                Thread.sleep(1000);
+                tren.bajarPasajeros();
             }
 
+            tren.bajarPasajerosT();
+
+        
             System.out.println("El empleado del tren se va a su casa.");
 
         }
+            
+        } catch (InterruptedException e) {
+        }
+
 
     }
 

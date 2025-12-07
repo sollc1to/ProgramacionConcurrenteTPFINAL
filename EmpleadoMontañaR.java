@@ -1,10 +1,12 @@
 
 public class EmpleadoMontañaR implements Runnable {
 
-    ParqueDiversiones parque;
+    private ParqueDiversiones parque;
+        private AtraccionesMecanicas atrc;
 
-    public EmpleadoMontañaR(ParqueDiversiones p) {
 
+    public EmpleadoMontañaR(ParqueDiversiones p, AtraccionesMecanicas atrc) {
+        this.atrc = atrc;
         this.parque = p;
     }
 
@@ -22,7 +24,7 @@ public class EmpleadoMontañaR implements Runnable {
                     }
 
                     while (parque.getCierre()) { //Mientras esté abierto....
-                        parque.iniciarMontañaRusa();
+                        atrc.iniciarMontañaRusa();
                         Thread.sleep(1500);
 
                     }

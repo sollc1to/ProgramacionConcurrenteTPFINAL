@@ -3,8 +3,11 @@
 public class EmpleadoPremio implements Runnable {
 
     private ParqueDiversiones parque;
+        private Actividades intercambio;
 
-    public EmpleadoPremio(ParqueDiversiones p) {
+
+    public EmpleadoPremio(ParqueDiversiones p, Actividades a) {
+        this.intercambio = a;
         parque = p;
     }
 
@@ -22,7 +25,7 @@ public class EmpleadoPremio implements Runnable {
                 }
                 while(parque.getCierre()){
 
-                parque.cambiarFichaE();
+                intercambio.cambiarFichaE();
                 Thread.sleep(1000);
 
 

@@ -2,9 +2,13 @@
 public class EmpleadoBarcoPirata implements Runnable {
 
     private ParqueDiversiones parque;
+        private AtraccionesMecanicas atrc;
 
-    public EmpleadoBarcoPirata(ParqueDiversiones parque) {
+
+    public EmpleadoBarcoPirata(ParqueDiversiones parque,AtraccionesMecanicas atrc
+) {
         this.parque = parque;
+        this.atrc = atrc;
     }
 
     public void run() {
@@ -21,10 +25,10 @@ public class EmpleadoBarcoPirata implements Runnable {
 
                 while (parque.getCierre()) {
 
-                    parque.iniciarBarcoPirata();
+                    atrc.iniciarBarcoPirata();
 
                     Thread.sleep(7000);
-                    parque.terminarBarcoPirata();
+                    atrc.terminarBarcoPirata();
 
                 }
 
